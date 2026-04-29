@@ -1,0 +1,8 @@
+data/
+cassava_leaf_disease_classification/
+__pycache__/
+*.pyc
+.env
+.ipynb_checkpoints/
+*.zip
+submission/
