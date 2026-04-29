@@ -136,7 +136,7 @@ with st.sidebar:
         st.success("Model Status: Online")
 
 # Navigation Tabs
-tab1, tab2, tab3, tab4 = st.tabs(["🚀 Diagnosis App", "📊 Data Insights", "🎯 Model Performance", "📖 Technical Story"])
+tab1, tab2, tab3, tab4, tab5 = st.tabs(["🚀 Diagnosis App", "🔍 Grad-CAM Analysis", "📊 Data Insights", "🎯 Model Performance", "📖 Technical Story"])
 
 with tab1:
     if model is None:
@@ -189,13 +189,22 @@ with tab1:
                 st.bar_chart({checkpoint['class_names'][i]: float(probs[i]) for i in range(len(probs))})
 
     if uploaded_file and 'overlay' in locals() and overlay is not None:
-        with c1:
-            st.markdown("---")
-            st.write("### AI Attention (Grad-CAM)")
-            st.markdown("This thermal map shows exactly which leaf lesions the AI analyzed:")
-            st.image(overlay, use_container_width=True, caption=f"Evidence targeting {label}")
+        pass # Moving render to tab2
 
 with tab2:
+    st.subheader("Interactive AI Explainability")
+    if uploaded_file and 'overlay' in locals() and overlay is not None:
+        c_left, c_right = st.columns([1, 1])
+        with c_left:
+            st.image(img, use_container_width=True, caption="Original Uploaded Leaf")
+        with c_right:
+            st.image(overlay, use_container_width=True, caption=f"Thermal Activation for: {label}")
+        
+        st.info("The Grad-CAM thermal map highlights the exact cellular lesions and textures that the AI's convolutional network focused on to classify the disease.")
+    else:
+        st.info("Please upload an image in the 'Diagnosis App' tab first to see its Grad-CAM breakdown here.")
+
+with tab3:
     st.subheader("Phase 1: Exploratory Data Analysis & Splitting")
     st.markdown("We analyzed the full raw dataset (**21,397 images**) to understand disease prevalence. **Crucially, before training, we locked away 10% for validation and 10% (2,146 images) as a blind test set** to ensure zero data leakage. The model only trained on the remaining **17,117 images**.")
     
@@ -212,7 +221,7 @@ with tab2:
         if os.path.exists("main/analytics/eda/03_image_resolutions.png"):
             st.image("main/analytics/eda/03_image_resolutions.png", caption="Resolution Uniformity Check")
 
-with tab3:
+with tab4:
     if not checkpoint:
         st.info("Charts will populate once training is finalized.")
     else:
@@ -230,7 +239,7 @@ with tab3:
             st.write("Detailed Classification Metrics:")
             st.code(checkpoint['report'])
 
-with tab4:
+with tab5:
     st.subheader("The Engineering Story")
     st.markdown("""
     ### 🛡️ Why Our Solution Wins:
