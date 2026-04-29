@@ -5,4 +5,3 @@ __pycache__/
 .env
 .ipynb_checkpoints/
 *.zip
-submission/
