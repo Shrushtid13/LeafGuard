@@ -4,6 +4,8 @@ LeafGuard AI is an automated, hardware-aware diagnostic system designed to empow
 
 Developed via a robust Deep Learning pipeline, the system achieves an elite **0.9660 ROC-AUC Score** ensuring high clinical trust, and is deployed via a premium interactive SaaS dashboard.
 
+🔴 **Live App Demo**: [LeafGuard AI on Streamlit Cloud](https://shrushtid13-leafguard-mainapp-ao33vr.streamlit.app/)
+
 ![LeafGuard AI Dashboard](dashboard.png)
 
 ## 🚀 Features
