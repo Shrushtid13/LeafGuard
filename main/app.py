@@ -5,6 +5,17 @@ from torchvision import models, transforms
 from PIL import Image
 import os
 import pandas as pd
+import sys
+import numpy as np
+import cv2
+
+# Import custom Grad-CAM module
+sys.path.append(os.path.abspath("main/modules"))
+try:
+    from explainability import GradCAM, overlay_heatmap
+except ImportError:
+    pass
+
 
 # Professional Page Config
 st.set_page_config(page_title="LeafGuard", page_icon="🌿", layout="wide")
@@ -149,10 +160,10 @@ with tab1:
                     transforms.ToTensor(), transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
                 ])
                 inp = t(img).unsqueeze(0)
-                with torch.no_grad():
-                    out = model(inp)
-                    probs = torch.softmax(out, dim=1)[0]
-                    conf, pred = torch.max(probs, 0)
+                # Inference
+                out = model(inp)
+                probs = torch.softmax(out, dim=1)[0]
+                conf, pred = torch.max(probs, 0)
                 
                 label = checkpoint['class_names'][pred]
                 color = "#059669" if label == "Healthy" else "#dc2626"
@@ -163,8 +174,26 @@ with tab1:
                 </div>
                 """, unsafe_allow_html=True)
                 
+                # Dynamic Grad-CAM
+                overlay = None
+                try:
+                    target_layer = model.features[-1]
+                    grad_cam = GradCAM(model, target_layer)
+                    heatmap = grad_cam.generate_heatmap(inp, pred.item())
+                    img_np = np.array(img.resize((224, 224)))
+                    overlay = overlay_heatmap(img_np, heatmap)
+                except Exception as e:
+                    pass
+                
                 st.write("Full Symptom Distribution:")
                 st.bar_chart({checkpoint['class_names'][i]: float(probs[i]) for i in range(len(probs))})
+
+    if uploaded_file and 'overlay' in locals() and overlay is not None:
+        with c1:
+            st.markdown("---")
+            st.write("### AI Attention (Grad-CAM)")
+            st.markdown("This thermal map shows exactly which leaf lesions the AI analyzed:")
+            st.image(overlay, use_container_width=True, caption=f"Evidence targeting {label}")
 
 with tab2:
     st.subheader("Phase 1: Exploratory Data Analysis & Splitting")
